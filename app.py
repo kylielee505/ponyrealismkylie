@@ -155,7 +155,11 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     gr.HTML("""
     <h1 align="center">Pony Realism v21 SDXL - Text-to-Image Generation</h1>
     <p align="center">
-    <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[Model Page]</a>
+    <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[HF Model Page]</a>
+    <a href="https://civitai.com/models/372465/pony-realism" target="_blank">[civitai Model Page]</a>
+    <a href="https://huggingface.co/microsoft/Florence-2-base" target="_blank">[Florence-2 Model]</a>
+    <a href="https://huggingface.co/gokaygokay/Lamini-Prompt-Enchance-Long" target="_blank">[Prompt Enhancer Long]</a>
+    <a href="https://huggingface.co/gokaygokay/Lamini-Prompt-Enchance" target="_blank">[Prompt Enhancer Medium]</a>
     </p>
     """)
 
