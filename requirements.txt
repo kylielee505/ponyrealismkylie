@@ -1,0 +1,12 @@
+accelerate==0.27.2
+gradio
+invisible-watermark==0.2.0
+Pillow==10.2.0
+spaces
+omegaconf==2.3.0
+torchsde
+timm
+tokenizers
+sentencepiece
+transformers
+diffusers
