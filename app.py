@@ -83,7 +83,12 @@ def enhance_prompt(input_prompt, model_choice):
     return enhanced_text
 
 @spaces.GPU(duration=120)
-def generate_image(additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps, guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler, clip_skip, use_florence2, use_medium_enhancer, use_long_enhancer, input_image=None, progress=gr.Progress(track_tqdm=True)):
+def generate_image(additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps,
+                   guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler, clip_skip, 
+                   use_florence2, use_medium_enhancer, use_long_enhancer,
+                   use_positive_prefix, use_positive_suffix, use_negative_prefix, use_negative_suffix,
+                   input_image=None, progress=gr.Progress(track_tqdm=True)):
+    
     if use_random_seed:
         seed = random.randint(0, 2**32 - 1)
     else:
@@ -95,8 +100,8 @@ def generate_image(additional_positive_prompt, additional_negative_prompt, heigh
     # Set clip skip
     pipe.text_encoder.config.num_hidden_layers -= (clip_skip - 1)
     
-    # Start with the default positive prompt prefix
-    full_positive_prompt = DEFAULT_POSITIVE_PREFIX
+    # Start with the default positive prompt prefix if enabled
+    full_positive_prompt = DEFAULT_POSITIVE_PREFIX + ", " if use_positive_prefix else ""
 
     # Add Florence-2 caption if enabled and image is provided
     if use_florence2 and input_image is not None:
@@ -115,13 +120,19 @@ def generate_image(additional_positive_prompt, additional_negative_prompt, heigh
             long_enhanced = enhance_prompt(enhanced_prompt, "Long")
             long_enhanced = long_enhanced.lower().replace('.', ',')
             enhanced_prompt = f"{enhanced_prompt}, {long_enhanced}"
-        full_positive_prompt += f"{enhanced_prompt}"
+        full_positive_prompt += enhanced_prompt
 
-    # Add the default positive suffix
-    full_positive_prompt += f", {DEFAULT_POSITIVE_SUFFIX}"
+    # Add the default positive suffix if enabled
+    if use_positive_suffix:
+        full_positive_prompt += f", {DEFAULT_POSITIVE_SUFFIX}"
     
     # Combine default negative prompt with additional negative prompt
-    full_negative_prompt = f"{DEFAULT_NEGATIVE_PREFIX}, {additional_negative_prompt}, {DEFAULT_NEGATIVE_SUFFIX}" if additional_negative_prompt else f"{DEFAULT_NEGATIVE_PREFIX}, {DEFAULT_NEGATIVE_SUFFIX}"
+    full_negative_prompt = ""
+    if use_negative_prefix:
+        full_negative_prompt += f"{DEFAULT_NEGATIVE_PREFIX}, "
+    full_negative_prompt += additional_negative_prompt if additional_negative_prompt else ""
+    if use_negative_suffix:
+        full_negative_prompt += f", {DEFAULT_NEGATIVE_SUFFIX}"
     
     try:
         image = pipe(
@@ -134,21 +145,17 @@ def generate_image(additional_positive_prompt, additional_negative_prompt, heigh
             num_images_per_prompt=num_images_per_prompt,
             generator=torch.Generator(pipe.device).manual_seed(seed)
         ).images
-        return image, seed, full_positive_prompt
+        return image, seed, full_positive_prompt, full_negative_prompt
     except Exception as e:
         print(f"Error during image generation: {str(e)}")
-        return None, seed, full_positive_prompt
+        return None, seed, full_positive_prompt, full_negative_prompt
 
 # Gradio interface
 with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     gr.HTML("""
     <h1 align="center">Pony Realism v21 SDXL - Text-to-Image Generation</h1>
     <p align="center">
-    <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[HF Model Page]</a>
-    <a href="https://civitai.com/models/372465/pony-realism" target="_blank">[civitai Model Page]</a>
-    <a href="https://huggingface.co/microsoft/Florence-2-base" target="_blank">[Florence-2 Model]</a>
-    <a href="https://huggingface.co/gokaygokay/Lamini-Prompt-Enchance-Long" target="_blank">[Prompt Enhancer Long]</a>
-    <a href="https://huggingface.co/gokaygokay/Lamini-Prompt-Enchance" target="_blank">[Prompt Enhancer Medium]</a>
+    <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[Model Page]</a>
     </p>
     """)
 
@@ -174,21 +181,46 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
                 use_medium_enhancer = gr.Checkbox(label="Use Medium Prompt Enhancer", value=False)
                 use_long_enhancer = gr.Checkbox(label="Use Long Prompt Enhancer", value=False)
             
+            with gr.Accordion("Prefix and Suffix Settings", open=False):
+                use_positive_prefix = gr.Checkbox(
+                    label="Use Positive Prefix", 
+                    value=True, 
+                    info=f"Prefix: {DEFAULT_POSITIVE_PREFIX}"
+                )
+                use_positive_suffix = gr.Checkbox(
+                    label="Use Positive Suffix", 
+                    value=True, 
+                    info=f"Suffix: {DEFAULT_POSITIVE_SUFFIX}"
+                )
+                use_negative_prefix = gr.Checkbox(
+                    label="Use Negative Prefix", 
+                    value=True, 
+                    info=f"Prefix: {DEFAULT_NEGATIVE_PREFIX}"
+                )
+                use_negative_suffix = gr.Checkbox(
+                    label="Use Negative Suffix", 
+                    value=True, 
+                    info=f"Suffix: {DEFAULT_NEGATIVE_SUFFIX}"
+                )
+            
             generate_btn = gr.Button("Generate Image")
 
         with gr.Column(scale=1):
             output_gallery = gr.Gallery(label="Result", elem_id="gallery", show_label=False)
             seed_used = gr.Number(label="Seed Used")
-            full_prompt_used = gr.Textbox(label="Full Positive Prompt Used")
+            full_positive_prompt_used = gr.Textbox(label="Full Positive Prompt Used")
+            full_negative_prompt_used = gr.Textbox(label="Full Negative Prompt Used")
 
     generate_btn.click(
         fn=generate_image,
         inputs=[
             positive_prompt, negative_prompt, height, width, num_inference_steps,
             guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler,
-            clip_skip, use_florence2, use_medium_enhancer, use_long_enhancer, input_image
+            clip_skip, use_florence2, use_medium_enhancer, use_long_enhancer,
+            use_positive_prefix, use_positive_suffix, use_negative_prefix, use_negative_suffix,
+            input_image
         ],
-        outputs=[output_gallery, seed_used, full_prompt_used]
+        outputs=[output_gallery, seed_used, full_positive_prompt_used, full_negative_prompt_used]
     )
 
 demo.launch(debug=True)
