@@ -1,6 +1,6 @@
 ---
-title: PonyRealism
-emoji: 🏢
+title: Pony Realism ++
+emoji: ⚡
 colorFrom: red
 colorTo: yellow
 sdk: gradio
