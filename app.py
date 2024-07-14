@@ -5,6 +5,7 @@ import random
 from huggingface_hub import snapshot_download
 from diffusers import StableDiffusionXLPipeline, AutoencoderKL
 from diffusers import EulerAncestralDiscreteScheduler, DPMSolverMultistepScheduler, DPMSolverSDEScheduler
+from diffusers.models.attention_processor import AttnProcessor2_0
 import gradio as gr
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForCausalLM, pipeline
@@ -26,6 +27,8 @@ pipe = StableDiffusionXLPipeline.from_pretrained(
     variant="fp16"
 )
 pipe = pipe.to("cuda")
+
+pipe.unet.set_attn_processor(AttnProcessor2_0())
 
 # Define samplers
 samplers = {
