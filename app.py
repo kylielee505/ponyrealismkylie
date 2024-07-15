@@ -128,6 +128,12 @@ def enhance_prompt(input_prompt, model_choice):
     return enhanced_text
 
 def upscale_image(image, scale):
+    # Convert to PIL Image if it's a file path
+    if isinstance(image, str):
+        image = Image.open(image).convert('RGB')
+    elif not isinstance(image, Image.Image):
+        raise ValueError("Input must be a PIL Image or a file path")
+
     if scale == 2:
         return lazy_realesrgan_x2.predict(image)
     elif scale == 4:
