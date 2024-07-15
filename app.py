@@ -37,7 +37,7 @@ samplers = {
     "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe.scheduler.config, use_karras_sigmas=True)
 }
 
-DEFAULT_POSITIVE_PREFIX = "score_9, score_8_up, score_7_up, BREAK,"
+DEFAULT_POSITIVE_PREFIX = "score_9, score_8_up, score_7_up, BREAK"
 DEFAULT_POSITIVE_SUFFIX = "(masterpiece), best quality, very aesthetic, perfect face"
 DEFAULT_NEGATIVE_PREFIX = "score_1, score_2, score_3, text"
 DEFAULT_NEGATIVE_SUFFIX = "nsfw, (low quality, worst quality:1.2), very displeasing, 3d, watermark, signature, ugly, poorly drawn"
