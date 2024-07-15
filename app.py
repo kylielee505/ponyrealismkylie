@@ -33,8 +33,8 @@ def download_file(url, folder_path, filename):
             print(f"Error downloading the file. Status code: {response.status_code}")
 
 # Download ESRGAN models
-download_file("https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x2.pth", "models/upscalers/", "RealESRGAN_x2.pth")
-download_file("https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4.pth", "models/upscalers/", "RealESRGAN_x4.pth")
+download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealESRGAN_x2.pth?download=true", "models/upscalers/", "RealESRGAN_x2.pth")
+download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealESRGAN_x4.pth?download=true", "models/upscalers/", "RealESRGAN_x4.pth")
 
 # Download the model files
 ckpt_dir = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
