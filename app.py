@@ -187,8 +187,10 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
                 use_florence2 = gr.Checkbox(label="Use Florence-2 Captioner", value=False)
                 use_medium_enhancer = gr.Checkbox(label="Use Medium Prompt Enhancer", value=False)
                 use_long_enhancer = gr.Checkbox(label="Use Long Prompt Enhancer", value=False)
+
+            generate_btn = gr.Button("Generate Image")
             
-            with gr.Accordion("Prefix and Suffix Settings", open=False):
+            with gr.Accordion("Prefix and Suffix Settings", open=True):
                 use_positive_prefix = gr.Checkbox(
                     label="Use Positive Prefix", 
                     value=True, 
@@ -210,7 +212,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
                     info=f"Suffix: {DEFAULT_NEGATIVE_SUFFIX}"
                 )
             
-            generate_btn = gr.Button("Generate Image")
+            
 
         with gr.Column(scale=1):
             output_gallery = gr.Gallery(label="Result", elem_id="gallery", show_label=False)
