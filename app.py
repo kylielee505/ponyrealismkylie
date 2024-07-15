@@ -208,15 +208,23 @@ def generate_image(additional_positive_prompt, additional_negative_prompt, heigh
         ).images
 
         if use_upscaler:
+            print("Upscaling images")
             upscaled_images = []
-            for img in images:
+            for i, img in enumerate(images):
+                print(f"Upscaling image {i+1}")
+                if not isinstance(img, Image.Image):
+                    print(f"Converting image {i+1} to PIL Image")
+                    img = Image.fromarray(np.uint8(img))
                 upscaled_img = upscale_image(img, upscale_factor)
                 upscaled_images.append(upscaled_img)
             images = upscaled_images
 
+        print("Returning results")
         return images, seed, full_positive_prompt, full_negative_prompt
     except Exception as e:
         print(f"Error during image generation: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return None, seed, full_positive_prompt, full_negative_prompt
 
 # Gradio interface
