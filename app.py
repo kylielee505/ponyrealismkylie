@@ -75,11 +75,23 @@ florence_processor = AutoProcessor.from_pretrained('microsoft/Florence-2-base', 
 enhancer_medium = pipeline("summarization", model="gokaygokay/Lamini-Prompt-Enchance", device=device)
 enhancer_long = pipeline("summarization", model="gokaygokay/Lamini-Prompt-Enchance-Long", device=device)
 
-# Initialize ESRGAN models
-realesrgan_x2 = RealESRGAN(device, scale=2)
-realesrgan_x2.load_weights('models/upscalers/RealESRGAN_x2.pth', download=False)
-realesrgan_x4 = RealESRGAN(device, scale=4)
-realesrgan_x4.load_weights('models/upscalers/RealESRGAN_x4.pth', download=False)
+class LazyRealESRGAN:
+    def __init__(self, device, scale):
+        self.device = device
+        self.scale = scale
+        self.model = None
+
+    def load_model(self):
+        if self.model is None:
+            self.model = RealESRGAN(self.device, scale=self.scale)
+            self.model.load_weights(f'models/upscalers/RealESRGAN_x{self.scale}.pth', download=False)
+
+    def predict(self, img):
+        self.load_model()
+        return self.model.predict(img)
+
+lazy_realesrgan_x2 = LazyRealESRGAN(device, scale=2)
+lazy_realesrgan_x4 = LazyRealESRGAN(device, scale=4)
 
 # Florence caption function
 def florence_caption(image):
@@ -116,18 +128,12 @@ def enhance_prompt(input_prompt, model_choice):
     return enhanced_text
 
 def upscale_image(image, scale):
-    # Convert PIL Image to numpy array
-    img_np = np.array(image)
-    
     if scale == 2:
-        upscaled_np = realesrgan_x2.predict(img_np)
+        return lazy_realesrgan_x2.predict(image)
     elif scale == 4:
-        upscaled_np = realesrgan_x4.predict(img_np)
+        return lazy_realesrgan_x4.predict(image)
     else:
         return image
-    
-    # Convert numpy array back to PIL Image
-    return Image.fromarray(upscaled_np)
 
 @spaces.GPU(duration=120)
 def generate_image(additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps,
