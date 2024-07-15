@@ -9,9 +9,32 @@ from diffusers.models.attention_processor import AttnProcessor2_0
 import gradio as gr
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForCausalLM, pipeline
+import requests
+from RealESRGAN import RealESRGAN
 
 import subprocess
 subprocess.run('pip install flash-attn --no-build-isolation', env={'FLASH_ATTENTION_SKIP_CUDA_BUILD': "TRUE"}, shell=True)
+
+def download_file(url, folder_path, filename):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    file_path = os.path.join(folder_path, filename)
+
+    if os.path.isfile(file_path):
+        print(f"File already exists: {file_path}")
+    else:
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            with open(file_path, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=1024):
+                    file.write(chunk)
+            print(f"File successfully downloaded and saved: {file_path}")
+        else:
+            print(f"Error downloading the file. Status code: {response.status_code}")
+
+# Download ESRGAN models
+download_file("https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x2.pth", "models/upscalers/", "RealESRGAN_x2.pth")
+download_file("https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4.pth", "models/upscalers/", "RealESRGAN_x4.pth")
 
 # Download the model files
 ckpt_dir = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
@@ -33,7 +56,6 @@ pipe.unet.set_attn_processor(AttnProcessor2_0())
 # Define samplers
 samplers = {
     "Euler a": EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config),
-    "DPM++ 2M": DPMSolverMultistepScheduler.from_config(pipe.scheduler.config, algorithm_type="dpmsolver++", use_karras_sigmas=True),
     "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe.scheduler.config, use_karras_sigmas=True)
 }
 
@@ -50,6 +72,12 @@ florence_processor = AutoProcessor.from_pretrained('microsoft/Florence-2-base', 
 # Prompt Enhancer
 enhancer_medium = pipeline("summarization", model="gokaygokay/Lamini-Prompt-Enchance", device=device)
 enhancer_long = pipeline("summarization", model="gokaygokay/Lamini-Prompt-Enchance-Long", device=device)
+
+# Initialize ESRGAN models
+realesrgan_x2 = RealESRGAN(device, scale=2)
+realesrgan_x2.load_weights('models/upscalers/RealESRGAN_x2.pth', download=False)
+realesrgan_x4 = RealESRGAN(device, scale=4)
+realesrgan_x4.load_weights('models/upscalers/RealESRGAN_x4.pth', download=False)
 
 # Florence caption function
 def florence_caption(image):
@@ -85,11 +113,21 @@ def enhance_prompt(input_prompt, model_choice):
     
     return enhanced_text
 
+# Upscale function
+def upscale_image(image, scale):
+    if scale == 2:
+        return realesrgan_x2.predict(image)
+    elif scale == 4:
+        return realesrgan_x4.predict(image)
+    else:
+        return image
+
 @spaces.GPU(duration=120)
 def generate_image(additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps,
                    guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler, clip_skip, 
                    use_florence2, use_medium_enhancer, use_long_enhancer,
                    use_positive_prefix, use_positive_suffix, use_negative_prefix, use_negative_suffix,
+                   use_upscaler, upscale_factor,
                    input_image=None, progress=gr.Progress(track_tqdm=True)):
     
     if use_random_seed:
@@ -138,7 +176,7 @@ def generate_image(additional_positive_prompt, additional_negative_prompt, heigh
         full_negative_prompt += f", {DEFAULT_NEGATIVE_SUFFIX}"
     
     try:
-        image = pipe(
+        images = pipe(
             prompt=full_positive_prompt,
             negative_prompt=full_negative_prompt,
             height=height,
@@ -148,7 +186,15 @@ def generate_image(additional_positive_prompt, additional_negative_prompt, heigh
             num_images_per_prompt=num_images_per_prompt,
             generator=torch.Generator(pipe.device).manual_seed(seed)
         ).images
-        return image, seed, full_positive_prompt, full_negative_prompt
+
+        if use_upscaler:
+            upscaled_images = []
+            for img in images:
+                upscaled_img = upscale_image(img, upscale_factor)
+                upscaled_images.append(upscaled_img)
+            images = upscaled_images
+
+        return images, seed, full_positive_prompt, full_negative_prompt
     except Exception as e:
         print(f"Error during image generation: {str(e)}")
         return None, seed, full_positive_prompt, full_negative_prompt
@@ -188,6 +234,10 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
                 use_medium_enhancer = gr.Checkbox(label="Use Medium Prompt Enhancer", value=False)
                 use_long_enhancer = gr.Checkbox(label="Use Long Prompt Enhancer", value=False)
 
+            with gr.Accordion("Upscaler Settings", open=False):
+                use_upscaler = gr.Checkbox(label="Use Upscaler", value=False)
+                upscale_factor = gr.Radio(label="Upscale Factor", choices=[2, 4], value=2)
+
             generate_btn = gr.Button("Generate Image")
             
             with gr.Accordion("Prefix and Suffix Settings", open=True):
@@ -211,8 +261,6 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
                     value=True, 
                     info=f"Suffix: {DEFAULT_NEGATIVE_SUFFIX}"
                 )
-            
-            
 
         with gr.Column(scale=1):
             output_gallery = gr.Gallery(label="Result", elem_id="gallery", show_label=False)
@@ -227,6 +275,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
             guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler,
             clip_skip, use_florence2, use_medium_enhancer, use_long_enhancer,
             use_positive_prefix, use_positive_suffix, use_negative_prefix, use_negative_suffix,
+            use_upscaler, upscale_factor,
             input_image
         ],
         outputs=[output_gallery, seed_used, full_positive_prompt_used, full_negative_prompt_used]
