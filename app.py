@@ -8,9 +8,11 @@ from diffusers import EulerAncestralDiscreteScheduler, DPMSolverMultistepSchedul
 from diffusers.models.attention_processor import AttnProcessor2_0
 import gradio as gr
 from PIL import Image
+import numpy as np
 from transformers import AutoProcessor, AutoModelForCausalLM, pipeline
 import requests
 from RealESRGAN import RealESRGAN
+
 
 import subprocess
 subprocess.run('pip install flash-attn --no-build-isolation', env={'FLASH_ATTENTION_SKIP_CUDA_BUILD': "TRUE"}, shell=True)
@@ -113,14 +115,19 @@ def enhance_prompt(input_prompt, model_choice):
     
     return enhanced_text
 
-# Upscale function
 def upscale_image(image, scale):
+    # Convert PIL Image to numpy array
+    img_np = np.array(image)
+    
     if scale == 2:
-        return realesrgan_x2.predict(image)
+        upscaled_np = realesrgan_x2.predict(img_np)
     elif scale == 4:
-        return realesrgan_x4.predict(image)
+        upscaled_np = realesrgan_x4.predict(img_np)
     else:
         return image
+    
+    # Convert numpy array back to PIL Image
+    return Image.fromarray(upscaled_np)
 
 @spaces.GPU(duration=120)
 def generate_image(additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps,
