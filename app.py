@@ -255,7 +255,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
                 num_images_per_prompt = gr.Slider(1, 4, 1, step=1, label="Number of images per prompt")
                 use_random_seed = gr.Checkbox(label="Use Random Seed", value=True)
                 seed = gr.Number(label="Seed", value=0, precision=0)
-                sampler = gr.Dropdown(label="Sampler", choices=list(samplers.keys()), value="DPM++ SDE Karras")
+                sampler = gr.Dropdown(label="Sampler", choices=list(samplers.keys()), value="Euler a")
                 clip_skip = gr.Slider(1, 4, 2, step=1, label="Clip skip")
             
             with gr.Accordion("Captioner and Enhancers", open=False):
