@@ -90,6 +90,8 @@ class LazyRealESRGAN:
         self.load_model()
         return self.model.predict(img)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 lazy_realesrgan_x2 = LazyRealESRGAN(device, scale=2)
 lazy_realesrgan_x4 = LazyRealESRGAN(device, scale=4)
 
