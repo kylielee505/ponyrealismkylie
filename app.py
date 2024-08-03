@@ -69,8 +69,8 @@ pipe_cyber.unet.set_attn_processor(AttnProcessor2_0())
 
 # Define samplers
 samplers = {
-    "Euler a": EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config),
-    "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe.scheduler.config, use_karras_sigmas=True)
+    "Euler a": EulerAncestralDiscreteScheduler.from_config(pipe_pony.scheduler.config),
+    "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True)
 }
 
 DEFAULT_POSITIVE_PREFIX = "score_9, score_8_up, score_7_up, BREAK"
