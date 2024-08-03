@@ -257,7 +257,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     </p>
     """)
 
-     with gr.Row():
+    with gr.Row():
         with gr.Column(scale=1):
             model_choice = gr.Dropdown(
                 label="Model",
