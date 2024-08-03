@@ -39,21 +39,33 @@ download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealES
 download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealESRGAN_x4.pth?download=true", "models/upscalers/", "RealESRGAN_x4.pth")
 
 # Download the model files
-ckpt_dir = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
+ckpt_dir_pony = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
+ckpt_dir_cyber = snapshot_download(repo_id="John6666/cyberrealistic-pony-v61-sdxl")
 
 # Load the models
-vae = AutoencoderKL.from_pretrained(os.path.join(ckpt_dir, "vae"), torch_dtype=torch.float16)
+vae_pony = AutoencoderKL.from_pretrained(os.path.join(ckpt_dir_pony, "vae"), torch_dtype=torch.float16)
+vae_cyber = AutoencoderKL.from_pretrained(os.path.join(ckpt_dir_cyber, "vae"), torch_dtype=torch.float16)
 
-pipe = StableDiffusionXLPipeline.from_pretrained(
-    ckpt_dir,
-    vae=vae,
+pipe_pony = StableDiffusionXLPipeline.from_pretrained(
+    ckpt_dir_pony,
+    vae=vae_pony,
     torch_dtype=torch.float16,
     use_safetensors=True,
     variant="fp16"
 )
-pipe = pipe.to("cuda")
+pipe_cyber = StableDiffusionXLPipeline.from_pretrained(
+    ckpt_dir_cyber,
+    vae=vae_cyber,
+    torch_dtype=torch.float16,
+    use_safetensors=True,
+    variant="fp16"
+)
 
-pipe.unet.set_attn_processor(AttnProcessor2_0())
+pipe_pony = pipe_pony.to("cuda")
+pipe_cyber = pipe_cyber.to("cuda")
+
+pipe_pony.unet.set_attn_processor(AttnProcessor2_0())
+pipe_cyber.unet.set_attn_processor(AttnProcessor2_0())
 
 # Define samplers
 samplers = {
@@ -145,12 +157,15 @@ def upscale_image(image, scale):
         return image
 
 @spaces.GPU(duration=120)
-def generate_image(additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps,
+def generate_image(model_choice, additional_positive_prompt, additional_negative_prompt, height, width, num_inference_steps,
                    guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler, clip_skip, 
                    use_florence2, use_medium_enhancer, use_long_enhancer,
                    use_positive_prefix, use_positive_suffix, use_negative_prefix, use_negative_suffix,
                    use_upscaler, upscale_factor,
                    input_image=None, progress=gr.Progress(track_tqdm=True)):
+    
+    # Select the appropriate pipe based on the model choice
+    pipe = pipe_pony if model_choice == "Pony Realism v21" else pipe_cyber
     
     if use_random_seed:
         seed = random.randint(0, 2**32 - 1)
@@ -242,8 +257,13 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     </p>
     """)
 
-    with gr.Row():
+     with gr.Row():
         with gr.Column(scale=1):
+            model_choice = gr.Dropdown(
+                label="Model",
+                choices=["Pony Realism v21", "Cyberrealistic Pony v61"],
+                value="Pony Realism v21"
+            )
             positive_prompt = gr.Textbox(label="Positive Prompt", placeholder="Add your positive prompt here")
             negative_prompt = gr.Textbox(label="Negative Prompt", placeholder="Add your negative prompt here")
             
@@ -301,6 +321,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     generate_btn.click(
         fn=generate_image,
         inputs=[
+            model_choice,  # Add this new input
             positive_prompt, negative_prompt, height, width, num_inference_steps,
             guidance_scale, num_images_per_prompt, use_random_seed, seed, sampler,
             clip_skip, use_florence2, use_medium_enhancer, use_long_enhancer,
