@@ -4,7 +4,7 @@ import torch
 import random
 from huggingface_hub import snapshot_download
 from diffusers import StableDiffusionXLPipeline, AutoencoderKL
-from diffusers import EulerAncestralDiscreteScheduler, DPMSolverMultistepScheduler, DPMSolverSDEScheduler
+from diffusers import EulerAncestralDiscreteScheduler, DPMSolverMultistepScheduler, DPMSolverSDEScheduler, HeunDiscreteScheduler
 from diffusers.models.attention_processor import AttnProcessor2_0
 import gradio as gr
 from PIL import Image
@@ -70,7 +70,8 @@ pipe_cyber.unet.set_attn_processor(AttnProcessor2_0())
 # Define samplers
 samplers = {
     "Euler a": EulerAncestralDiscreteScheduler.from_config(pipe_pony.scheduler.config),
-    "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True)
+    "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True),
+    "Heun": HeunDiscreteScheduler.from_config(pipe_pony.scheduler.config)
 }
 
 DEFAULT_POSITIVE_PREFIX = "score_9, score_8_up, score_7_up, BREAK"
