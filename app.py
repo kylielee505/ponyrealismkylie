@@ -4,7 +4,16 @@ import torch
 import random
 from huggingface_hub import snapshot_download
 from diffusers import StableDiffusionXLPipeline, AutoencoderKL
-from diffusers import EulerAncestralDiscreteScheduler, DPMSolverMultistepScheduler, DPMSolverSDEScheduler, HeunDiscreteScheduler
+from diffusers import (
+    EulerAncestralDiscreteScheduler,
+    DPMSolverMultistepScheduler,
+    DPMSolverSDEScheduler,
+    HeunDiscreteScheduler,
+    DDIMScheduler,
+    LMSDiscreteScheduler,
+    PNDMScheduler,
+    UniPCMultistepScheduler,
+)
 from diffusers.models.attention_processor import AttnProcessor2_0
 import gradio as gr
 from PIL import Image
@@ -71,7 +80,14 @@ pipe_cyber.unet.set_attn_processor(AttnProcessor2_0())
 samplers = {
     "Euler a": EulerAncestralDiscreteScheduler.from_config(pipe_pony.scheduler.config),
     "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True),
-    "Heun": HeunDiscreteScheduler.from_config(pipe_pony.scheduler.config)
+    "Heun": HeunDiscreteScheduler.from_config(pipe_pony.scheduler.config),
+    # New samplers
+    "DPM++ 2M Karras": DPMSolverMultistepScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True),
+    "DPM++ 2M": DPMSolverMultistepScheduler.from_config(pipe_pony.scheduler.config),
+    "DDIM": DDIMScheduler.from_config(pipe_pony.scheduler.config),
+    "LMS": LMSDiscreteScheduler.from_config(pipe_pony.scheduler.config),
+    "PNDM": PNDMScheduler.from_config(pipe_pony.scheduler.config),
+    "UniPC": UniPCMultistepScheduler.from_config(pipe_pony.scheduler.config),
 }
 
 DEFAULT_POSITIVE_PREFIX = "score_9, score_8_up, score_7_up, BREAK"
