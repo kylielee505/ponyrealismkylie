@@ -292,10 +292,9 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     with gr.Row():
         with gr.Column(scale=1):
             model_choice = gr.Dropdown(
-                label="Model",
-                model_choice = gr.Dropdown(["Pony Realism v21", "Cyber Realistic Pony v61", "Stallion Dreams Pony Realistic v1"], label="Model Choice", value="Pony Realism v21"),
-                value="Pony Realism v21"
-            )
+                    ["Pony Realism v21", "Cyber Realistic Pony v61", "Stallion Dreams Pony Realistic v1"], 
+                    label="Model Choice", 
+                    value="Pony Realism v21")
             positive_prompt = gr.Textbox(label="Positive Prompt", placeholder="Add your positive prompt here")
             negative_prompt = gr.Textbox(label="Negative Prompt", placeholder="Add your negative prompt here")
             
