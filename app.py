@@ -279,10 +279,14 @@ def generate_image(model_choice, additional_positive_prompt, additional_negative
 # Gradio interface
 with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     gr.HTML("""
-    <h1 align="center">Pony Realism v21 SDXL - Text-to-Image Generation</h1>
+    <h1 align="center">Pony Realism / Cyber Realism / Stallion Dreams</h1>
     <p align="center">
-    <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[HF Model Page]</a>
-    <a href="https://civitai.com/models/372465/pony-realism" target="_blank">[civitai Model Page]</a>
+    <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[Pony Realism]</a>
+    <a href="https://huggingface.co/John6666/cyberrealistic-pony-v61-sdxl" target="_blank">[Cyberrealistic Pony]</a>
+    <a href="https://huggingface.co/John6666/stallion-dreams-pony-realistic-v1-sdxl" target="_blank">[Stallion Dreams]</a><br>
+    <a href="https://civitai.com/models/372465/pony-realism" target="_blank">[Pony Realism civitai]</a>
+    <a href="https://civitai.com/models/443821?modelVersionId=680915" target="_blank">[Cyberrealistic Pony civitai]</a>
+    <a href="https://civitai.com/models/628846/stallion-dreams-pony-realistic" target="_blank">[Stallion Dreams civitai]</a>
     <a href="https://huggingface.co/microsoft/Florence-2-base" target="_blank">[Florence-2 Model]</a>
     <a href="https://huggingface.co/gokaygokay/Lamini-Prompt-Enchance-Long" target="_blank">[Prompt Enhancer Long]</a>
     <a href="https://huggingface.co/gokaygokay/Lamini-Prompt-Enchance" target="_blank">[Prompt Enhancer Medium]</a>
