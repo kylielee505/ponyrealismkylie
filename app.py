@@ -50,10 +50,12 @@ download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealES
 # Download the model files
 ckpt_dir_pony = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
 ckpt_dir_cyber = snapshot_download(repo_id="John6666/cyberrealistic-pony-v61-sdxl")
+ckpt_dir_stallion = snapshot_download(repo_id="John6666/stallion-dreams-pony-realistic-v1-sdxl")
 
 # Load the models
 vae_pony = AutoencoderKL.from_pretrained(os.path.join(ckpt_dir_pony, "vae"), torch_dtype=torch.float16)
 vae_cyber = AutoencoderKL.from_pretrained(os.path.join(ckpt_dir_cyber, "vae"), torch_dtype=torch.float16)
+vae_stallion = AutoencoderKL.from_pretrained(os.path.join(ckpt_dir_stallion, "vae"), torch_dtype=torch.float16)
 
 pipe_pony = StableDiffusionXLPipeline.from_pretrained(
     ckpt_dir_pony,
@@ -69,12 +71,21 @@ pipe_cyber = StableDiffusionXLPipeline.from_pretrained(
     use_safetensors=True,
     variant="fp16"
 )
+pipe_stallion = StableDiffusionXLPipeline.from_pretrained(
+    ckpt_dir_stallion,
+    vae=vae_stallion,
+    torch_dtype=torch.float16,
+    use_safetensors=True,
+    variant="fp16"
+)
 
 pipe_pony = pipe_pony.to("cuda")
 pipe_cyber = pipe_cyber.to("cuda")
+pipe_stallion = pipe_stallion.to("cuda")
 
 pipe_pony.unet.set_attn_processor(AttnProcessor2_0())
 pipe_cyber.unet.set_attn_processor(AttnProcessor2_0())
+pipe_stallion.unet.set_attn_processor(AttnProcessor2_0())
 
 # Define samplers
 samplers = {
@@ -181,7 +192,12 @@ def generate_image(model_choice, additional_positive_prompt, additional_negative
                    input_image=None, progress=gr.Progress(track_tqdm=True)):
     
     # Select the appropriate pipe based on the model choice
-    pipe = pipe_pony if model_choice == "Pony Realism v21" else pipe_cyber
+    if model_choice == "Pony Realism v21":
+        pipe = pipe_pony
+    elif model_choice == "Cyber Realistic Pony v61":
+        pipe = pipe_cyber
+    else:  # "Stallion Dreams Pony Realistic v1"
+        pipe = pipe_stallion
     
     if use_random_seed:
         seed = random.randint(0, 2**32 - 1)
@@ -286,7 +302,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
             with gr.Accordion("Advanced settings", open=False):
                 height = gr.Slider(512, 2048, 1024, step=64, label="Height")
                 width = gr.Slider(512, 2048, 1024, step=64, label="Width")
-                num_inference_steps = gr.Slider(20, 50, 30, step=1, label="Number of Inference Steps")
+                num_inference_steps = gr.Slider(20, 100, 30, step=1, label="Number of Inference Steps")
                 guidance_scale = gr.Slider(1, 20, 6, step=0.1, label="Guidance Scale")
                 num_images_per_prompt = gr.Slider(1, 4, 1, step=1, label="Number of images per prompt")
                 use_random_seed = gr.Checkbox(label="Use Random Seed", value=True)
