@@ -1,5 +1,5 @@
 ---
-title: Pony Realism ++
+title: Pony Realism / Cyber Realism / Stallion Dreams
 emoji: ⚡
 colorFrom: red
 colorTo: yellow
