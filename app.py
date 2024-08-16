@@ -93,7 +93,7 @@ samplers = {
     "DPM++ SDE Karras": DPMSolverSDEScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True),
     "Heun": HeunDiscreteScheduler.from_config(pipe_pony.scheduler.config),
     # New samplers
-    "DPM++ 2M SDE Karras": DPMSolverMultistepScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True, algorithm_type="sde-dpmsolver++")
+    "DPM++ 2M SDE Karras": DPMSolverMultistepScheduler.from_config(pipe_pony.scheduler.config, use_karras_sigmas=True, algorithm_type="sde-dpmsolver++"),
     "DPM++ 2M": DPMSolverMultistepScheduler.from_config(pipe_pony.scheduler.config),
     "DDIM": DDIMScheduler.from_config(pipe_pony.scheduler.config),
     "LMS": LMSDiscreteScheduler.from_config(pipe_pony.scheduler.config),
