@@ -101,8 +101,8 @@ samplers = {
     "UniPC": UniPCMultistepScheduler.from_config(pipe_pony.scheduler.config),
 }
 
-DEFAULT_POSITIVE_PREFIX = "score_9, score_8_up, score_7_up, BREAK"
-DEFAULT_POSITIVE_SUFFIX = "(masterpiece), best quality, very aesthetic, perfect face"
+DEFAULT_POSITIVE_PREFIX = "Score_9 score_8_up score_7_up BREAK"
+DEFAULT_POSITIVE_SUFFIX = "(masterpiece) very_aesthetic detailed_face cinematic footage"
 DEFAULT_NEGATIVE_PREFIX = "score_1, score_2, score_3, text"
 DEFAULT_NEGATIVE_SUFFIX = "nsfw, (low quality, worst quality:1.2), very displeasing, 3d, watermark, signature, ugly, poorly drawn"
 
