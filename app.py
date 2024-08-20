@@ -49,7 +49,7 @@ download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealES
 
 # Download the model files
 ckpt_dir_pony = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
-ckpt_dir_cyber = snapshot_download(repo_id="John6666/cyberrealistic-pony-v61-sdxl")
+ckpt_dir_cyber = snapshot_download(repo_id="John6666/cyberrealistic-pony-v62-sdxl")
 ckpt_dir_stallion = snapshot_download(repo_id="John6666/stallion-dreams-pony-realistic-v1-sdxl")
 
 # Load the models
