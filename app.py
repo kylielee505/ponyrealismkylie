@@ -195,7 +195,7 @@ def generate_image(model_choice, additional_positive_prompt, additional_negative
     # Select the appropriate pipe based on the model choice
     if model_choice == "Pony Realism v21":
         pipe = pipe_pony
-    elif model_choice == "Cyber Realistic Pony v61":
+    elif model_choice == "Cyber Realistic Pony v62":
         pipe = pipe_cyber
     else:  # "Stallion Dreams Pony Realistic v1"
         pipe = pipe_stallion
