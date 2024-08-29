@@ -49,7 +49,7 @@ download_file("https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealES
 
 # Download the model files
 ckpt_dir_pony = snapshot_download(repo_id="John6666/pony-realism-v21main-sdxl")
-ckpt_dir_cyber = snapshot_download(repo_id="John6666/cyberrealistic-pony-v62-sdxl")
+ckpt_dir_cyber = snapshot_download(repo_id="John6666/cyberrealistic-pony-v63-sdxl")
 ckpt_dir_stallion = snapshot_download(repo_id="John6666/stallion-dreams-pony-realistic-v1-sdxl")
 
 # Load the models
@@ -195,7 +195,7 @@ def generate_image(model_choice, additional_positive_prompt, additional_negative
     # Select the appropriate pipe based on the model choice
     if model_choice == "Pony Realism v21":
         pipe = pipe_pony
-    elif model_choice == "Cyber Realistic Pony v62":
+    elif model_choice == "Cyber Realistic Pony v63":
         pipe = pipe_cyber
     else:  # "Stallion Dreams Pony Realistic v1"
         pipe = pipe_stallion
@@ -283,7 +283,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     <h1 align="center">Pony Realism / Cyber Realism / Stallion Dreams</h1>
     <p align="center">
     <a href="https://huggingface.co/John6666/pony-realism-v21main-sdxl/" target="_blank">[Pony Realism]</a>
-    <a href="https://huggingface.co/John6666/cyberrealistic-pony-v61-sdxl" target="_blank">[Cyberrealistic Pony]</a>
+    <a href="https://huggingface.co/John6666/cyberrealistic-pony-v63-sdxl" target="_blank">[Cyberrealistic Pony]</a>
     <a href="https://huggingface.co/John6666/stallion-dreams-pony-realistic-v1-sdxl" target="_blank">[Stallion Dreams]</a><br>
     <a href="https://civitai.com/models/372465/pony-realism" target="_blank">[Pony Realism civitai]</a>
     <a href="https://civitai.com/models/443821?modelVersionId=680915" target="_blank">[Cyberrealistic Pony civitai]</a>
@@ -297,7 +297,7 @@ with gr.Blocks(theme='bethecloud/storj_theme') as demo:
     with gr.Row():
         with gr.Column(scale=1):
             model_choice = gr.Dropdown(
-                    ["Pony Realism v21", "Cyber Realistic Pony v62", "Stallion Dreams Pony Realistic v1"], 
+                    ["Pony Realism v21", "Cyber Realistic Pony v63", "Stallion Dreams Pony Realistic v1"], 
                     label="Model Choice", 
                     value="Pony Realism v21")
             positive_prompt = gr.Textbox(label="Positive Prompt", placeholder="Add your positive prompt here")
