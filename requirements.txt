@@ -7,7 +7,7 @@ spaces
 omegaconf==2.3.0
 torchsde
 timm
-numpy==1.26.4
+numpy==1.26.1
 tokenizers
 sentencepiece
 transformers
