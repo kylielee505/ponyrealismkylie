@@ -103,8 +103,8 @@ samplers = {
 
 DEFAULT_POSITIVE_PREFIX = "Score_9 score_8_up score_7_up BREAK"
 DEFAULT_POSITIVE_SUFFIX = "(masterpiece) very_aesthetic detailed_face cinematic footage"
-DEFAULT_NEGATIVE_PREFIX = "score_1, score_2, score_3, text"
-DEFAULT_NEGATIVE_SUFFIX = "nsfw, (low quality, worst quality:1.2), very displeasing, 3d, watermark, signature, ugly, poorly drawn"
+DEFAULT_NEGATIVE_PREFIX = "Score_1 score_2 score _3 text low_res"
+DEFAULT_NEGATIVE_SUFFIX = "Nsfw oversaturated crappy_art low_quality blurry bad_anatomy extra_digits fewer_digits simple_background very_displeasing watermark signature"
 
 # Initialize Florence model
 device = "cuda" if torch.cuda.is_available() else "cpu"
